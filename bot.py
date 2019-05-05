@@ -21,13 +21,13 @@ def receive_message():
           messaging = event['messaging']
           for message in messaging:
             if message.get('message'):
-                recipient_id = message['sender']['id']
+                user_id = message['sender']['id']
                 if message['message'].get('text'):
                     response_sent_text = get_message()
-                    send_message(recipient_id, response_sent_text)
+                    send_message(user_id, response_sent_text)
                 if message['message'].get('attachments'):
                     response_sent_nontext = get_message()
-                    send_message(recipient_id, response_sent_nontext)
+                    send_message(user_id, response_sent_nontext)
     return "Message Processed"
 
 
@@ -42,11 +42,68 @@ def get_message():
     sample_responses = ["Zdravo","Milo mi e shto ne dodadovte","Kako ste denes?","Izgledate odlicno"]
     return random.choice(sample_responses)
 
-def send_message(recipient_id, response):
-    bot.send_text_message(recipient_id, response)
+def send_message(user_id, response):
+    bot.send_text_message(user_id, response)
     return "success"
+#Defining url
+URLSelectUser= "http://viberapi.inellipse.com/api/select-users/"
+URLAddUser= "http://viberapi.inellipse.com/api/add-users"
+URLSelectPlates= "http://viberapi.inellipse.com/api/select-plates/"
+URLAddPlates= "http://viberapi.inellipse.com/api/add-plates/"
+URLAddMsg="http://viberapi.inellipse.com/api/add-messages/"
 
+def AddUser(ACCESS_TOKEN,user_id,message_data,dateCreated=('Y-m-d H:i:s')) #Post request for adding a user
 
+header = {
+    'Content-Type':'application/json'
+}
+params = {
+    'access_token'= ACCESS_TOKEN
+}
+payload = {
+    'recipient':{
+        'id'=user_id
+    }
+    'message'=message_data
+    'CreationDate'=dateCreated
+}
+url=URLAddUser
+response = request.post(url,header,params=params,data=json.dumps(payload))
+response.raise_for_status()
+return response.json()
+print("User succesfully added")
+
+def AddPlates(ACCESS_TOKEN,plate_numbers,user_id,dateCreated=('Y-m-d H:i:s')); #Post requst for adding plates
+headerA = {
+    'Content-Type':'application/json'
+}
+paramsA = {
+    'access_token'=ACCESS_TOKEN
+}
+payloadA = {
+    'Numberplate'=plate_numbers
+    'id'=user_id
+    'DateCreated'=dateCreated
+}
+urlA=URLAddPlates
+responseA= request.post(urlA,headerA,params=paramsA,data=json.dumps(payloadA))
+return responsA.json()
+print("You have sucessfully added your plate number")
+
+def AddMessage(ACCESS_TOKEN,get_message); #post request for adding messages
+headerB = {
+    'Content-Type':'application/json'
+}
+paramsB={
+    'access_token'=ACCESS_TOKEN
+}
+payloadB={
+    'Messages'=get_message()
+}
+urlB=URLAddMsg
+responseB= request.post(urlB,headerB,params=paramsB,data=json.dumps(payloadB))
+return responseB.json()
+print("Your message is stored.")
 
 if __name__ == "__main__":
     app.run()
